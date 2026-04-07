@@ -1,0 +1,25 @@
+spec_version: 1
+name: my_env
+type: space
+runtime: fastapi
+app: server.app:app
+port: 8000
+description: HR onboarding coordinator simulation for OpenEnv agents
+entrypoint: server.my_env_environment:MyEnvironment
+tasks:
+  - id: easy
+    difficulty: easy
+    summary: Single standard onboarding case with no exceptions.
+  - id: medium
+    difficulty: medium
+    summary: Multiple interns including a follow-up case that requires prioritization.
+  - id: hard
+    difficulty: hard
+    summary: Mixed exception handling across international documents, escalation, and alternative access.
+reward_range:
+  min: 0.0
+  max: 1.0
+interfaces:
+  reset: returns initial observation
+  step: returns observation with reward, done, and info in metadata/top-level response
+  state: returns current environment snapshot
