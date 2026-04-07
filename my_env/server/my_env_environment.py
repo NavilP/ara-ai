@@ -375,9 +375,17 @@ class MyEnvironment(Environment):
             },
         )
 
-    def reset(self) -> OnboardingObservation:
-        self._episode_id = str(uuid4())
-        self._task = self.DEFAULT_TASK
+    def reset(
+        self,
+        seed: int | None = None,
+        episode_id: str | None = None,
+        task: TaskId | None = None,
+        **kwargs: Any,
+    ) -> OnboardingObservation:
+        del seed, kwargs
+        selected_task = task if task in TASKS else self.DEFAULT_TASK
+        self._episode_id = episode_id or str(uuid4())
+        self._task = selected_task
         self._interns = _load_task(self._task)
         self._difficulty = _classify_difficulty(self._interns)
         self._communications_log = []

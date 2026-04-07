@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ara-ai-env"
+version = "0.1.0"
+description = "OpenEnv hackathon submission for an HR onboarding coordination environment"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core[core]>=0.2.2",
+    "openai>=1.30.0",
+    "requests>=2.31.0",
+]
+
+[project.scripts]
+server = "server.app:main"
