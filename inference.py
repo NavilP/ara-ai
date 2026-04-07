@@ -63,38 +63,6 @@ def log_end(success: bool, steps: int, score: float, rewards: list[float]) -> No
     )
 
 
-def choose_fallback_action(observation: dict[str, Any]) -> tuple[str, str]:
-    available = observation.get("available_actions", {})
-    interns = observation.get("interns", [])
-
-    for intern in interns:
-        actions = available.get(intern["id"], [])
-        if "escalate_to_manager" in actions:
-            return intern["id"], "escalate_to_manager"
-
-    for intern in interns:
-        actions = available.get(intern["id"], [])
-        if "send_followup_email" in actions:
-            return intern["id"], "send_followup_email"
-
-    preferred = [
-        "send_welcome_email",
-        "share_docs",
-        "share_international_docs",
-        "schedule_intro_meeting",
-        "create_account",
-        "request_alternative_access",
-        "grant_system_access",
-    ]
-    for intern in interns:
-        actions = available.get(intern["id"], [])
-        for action in preferred:
-            if action in actions:
-                return intern["id"], action
-
-    return "", ""
-
-
 def get_model_action(client: OpenAI, observation: dict[str, Any]) -> tuple[str, str]:
     state_summary = {
         "task": observation.get("task"),
@@ -127,8 +95,8 @@ def get_model_action(client: OpenAI, observation: dict[str, Any]) -> tuple[str, 
         content = (completion.choices[0].message.content or "").strip()
         parsed = json.loads(content)
         return parsed["intern_id"], parsed["action"]
-    except Exception:
-        return choose_fallback_action(observation)
+    except Exception as exc:
+        raise RuntimeError(f"LLM request failed: {exc}") from exc
 
 
 def build_env() -> tuple[Any, str]:
@@ -183,7 +151,7 @@ def run_task(client: OpenAI, env: Any, base_url: str, task: str) -> None:
             observation = result.observation.model_dump()
             intern_id, action_name = get_model_action(client, observation)
             if not intern_id or not action_name:
-                break
+                raise RuntimeError("LLM returned an empty action")
 
             action = OnboardingAction(intern_id=intern_id, action=action_name)
             result = env.step(action)
@@ -213,6 +181,13 @@ def run_task(client: OpenAI, env: Any, base_url: str, task: str) -> None:
 
 
 def main() -> None:
+    if not API_BASE_URL:
+        raise RuntimeError("API_BASE_URL is required")
+    if not MODEL_NAME:
+        raise RuntimeError("MODEL_NAME is required")
+    if not API_KEY:
+        raise RuntimeError("HF_TOKEN or API_KEY is required")
+
     client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
     env, base_url = build_env()
 
