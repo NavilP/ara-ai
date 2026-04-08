@@ -26,3 +26,6 @@ Homepage = "https://huggingface.co/spaces"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["server*", "agent*"]
+
+[project.scripts]
+server = "app:main"
