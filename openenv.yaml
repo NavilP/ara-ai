@@ -1,6 +1,10 @@
 name: onboarding-env
 version: "1.0.0"
-description: "HR onboarding coordinator simulation for AI agents. The agent acts as an HR coordinator managing interns through a structured onboarding pipeline with real-world exceptions."
+description: >
+  HR onboarding coordinator environment for RL agents. The agent acts as
+  an HR coordinator managing interns through a structured onboarding pipeline
+  that includes real-world exceptions: international hires, access delays,
+  and non-responsive candidates.
 
 tasks:
   - easy
@@ -9,32 +13,41 @@ tasks:
 
 observation_space:
   type: object
-  description: "List of intern states with available actions and communications log"
+  description: Current state of all interns plus available actions and communications log
   properties:
+    task:
+      type: string
+      enum: [easy, medium, hard]
+    difficulty:
+      type: string
+      enum: [easy, medium, hard]
+      description: Computed from intern properties, independent of task name
     interns:
       type: array
       items:
         type: object
         properties:
-          id: { type: string }
-          name: { type: string }
-          is_international: { type: boolean }
-          intern_confirmed: { type: boolean }
+          id:                    { type: string }
+          name:                  { type: string }
+          is_international:      { type: boolean }
+          intern_confirmed:      { type: boolean }
           days_without_response: { type: integer }
-          access_delayed: { type: boolean }
-          checklist: { type: object }
+          access_delayed:        { type: boolean }
+          checklist:
+            type: object
+            description: Map of onboarding step name to completion boolean
     available_actions:
       type: object
-      description: "Map of intern_id to list of currently valid action strings"
+      description: Map of intern_id to list of currently valid action strings
     communications_log:
       type: array
-      description: "Email previews generated during the episode"
+      description: Email previews generated during the episode
     step_count: { type: integer }
-    message: { type: string }
+    message:    { type: string }
 
 action_space:
   type: object
-  description: "intern_id + action string from fixed vocabulary of 9 actions"
+  description: intern_id + action string from the standard vocabulary of 9 actions
   properties:
     intern_id: { type: string }
     action:
