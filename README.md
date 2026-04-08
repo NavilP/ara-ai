@@ -305,3 +305,14 @@ ara-ai/
 ├── validate-submission.sh    Pre-submission validator
 └── .env.example              Environment variable template
 ```
+
+---
+title: Ara AI
+emoji: ✨
+colorFrom: green
+colorTo: blue
+sdk: docker
+tag: openenv
+pinned: false
+license: mit
+---
