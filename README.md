@@ -4,7 +4,8 @@ emoji: ✨
 colorFrom: green
 colorTo: blue
 sdk: docker
-tag: openenv
+tags: 
+  - openenv
 pinned: false
 license: mit
 app_port: 7860
