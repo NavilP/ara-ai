@@ -1,1 +1,2 @@
-# graders package
+from .grader import grade
+__all__ = ["grade"]
