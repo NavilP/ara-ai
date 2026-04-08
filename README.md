@@ -1,3 +1,15 @@
+---
+title: Ara AI
+emoji: ✨
+colorFrom: green
+colorTo: blue
+sdk: docker
+tag: openenv
+pinned: false
+license: mit
+app_port: 7860
+---
+
 # onboarding-env
 > An OpenEnv reinforcement learning environment that simulates HR onboarding coordination. An AI agent manages interns through a structured workflow with real-world exceptions: international documentation, system access delays, and non-responsive candidates.
 
@@ -305,15 +317,3 @@ ara-ai/
 ├── validate-submission.sh    Pre-submission validator
 └── .env.example              Environment variable template
 ```
-
----
-title: Ara AI
-emoji: ✨
-colorFrom: green
-colorTo: blue
-sdk: docker
-tag: openenv
-pinned: false
-license: mit
-app_port: 7860
----
