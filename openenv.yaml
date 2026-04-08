@@ -1,0 +1,60 @@
+name: onboarding-env
+version: "1.0.0"
+description: "HR onboarding coordinator simulation for AI agents. The agent acts as an HR coordinator managing interns through a structured onboarding pipeline with real-world exceptions."
+
+tasks:
+  - easy
+  - medium
+  - hard
+
+observation_space:
+  type: object
+  description: "List of intern states with available actions and communications log"
+  properties:
+    interns:
+      type: array
+      items:
+        type: object
+        properties:
+          id: { type: string }
+          name: { type: string }
+          is_international: { type: boolean }
+          intern_confirmed: { type: boolean }
+          days_without_response: { type: integer }
+          access_delayed: { type: boolean }
+          checklist: { type: object }
+    available_actions:
+      type: object
+      description: "Map of intern_id to list of currently valid action strings"
+    communications_log:
+      type: array
+      description: "Email previews generated during the episode"
+    step_count: { type: integer }
+    message: { type: string }
+
+action_space:
+  type: object
+  description: "intern_id + action string from fixed vocabulary of 9 actions"
+  properties:
+    intern_id: { type: string }
+    action:
+      type: string
+      enum:
+        - send_welcome_email
+        - share_docs
+        - share_international_docs
+        - schedule_intro_meeting
+        - create_account
+        - grant_system_access
+        - request_alternative_access
+        - send_followup_email
+        - escalate_to_manager
+
+reward_range: [0.0, 1.0]
+episode_max_steps: 20
+
+endpoints:
+  reset: POST /reset
+  step:  POST /step
+  state: GET  /state
+  tasks: GET  /tasks
