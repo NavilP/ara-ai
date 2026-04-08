@@ -17,6 +17,7 @@ dependencies = [
     "requests>=2.32,<3.0",
     "python-multipart>=0.0.9,<1.0",
     "python-dotenv>=1.0,<2.0",
+    "openenv-core>=0.2.0"
 ]
 
 [project.urls]
