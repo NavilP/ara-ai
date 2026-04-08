@@ -315,4 +315,5 @@ sdk: docker
 tag: openenv
 pinned: false
 license: mit
+app_port: 7860
 ---
