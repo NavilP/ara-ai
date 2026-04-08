@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ara AI</title>
+<style>
+:root {
+  --bg: #f3f3f1;
+  --surface: #f9f8f4;
+  --paper: #ffffff;
+  --text: #2f3440;
+  --muted: #7f8696;
+  --line: #ecebf1;
+  --shadow: 0 8px 28px rgba(80, 72, 95, 0.06);
+  --lavender: #e9e4fb;
+  --purple: #ded6f5;
+  --pale-yellow: #f7efb9;
+  --soft-gray: #efefed;
+  --accent: #6c63ff;
+  --success: #4b9f6c;
+  --warn: #d19b28;
+  --danger: #d05e66;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  height: 100vh;
+  overflow: hidden;
+}
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 76px 1fr;
+}
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.s-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #111827, #4f46e5);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+.s-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid #e6e5eb;
+  background: #fff;
+  color: #8e93a0;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 200ms ease-in-out;
+}
+.s-icon:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(35, 40, 53, 0.09); }
+.s-icon.active { color: #111827; border-color: #d8d7df; background: #f6f6f8; }
+
+.workspace {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+.topbar {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand { font-size: 19px; font-weight: 600; letter-spacing: -0.2px; }
+.brand span { color: var(--accent); }
+.top-right { display: flex; gap: 8px; }
+.pill {
+  border: 1px solid var(--line);
+  background: #fafafa;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.pill b { color: #4b5563; font-weight: 600; }
+#pill-diff { display: none; font-weight: 600; }
+
+.tabs {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 6px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.tab {
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease-in-out;
+}
+.tab:hover { background: #f5f4f7; color: #4b5563; }
+.tab.active { background: #111827; color: #fff; }
+.tab .n {
+  background: #ffd45c;
+  color: #111827;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  margin-left: 6px;
+  display: none;
+}
+.tab .n.show { display: inline-flex; }
+
+.controls {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+button {
+  border-radius: 999px;
+  border: 1px solid #e4e3ea;
+  background: #fff;
+  color: #404654;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 200ms ease-in-out;
+}
+button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(32, 39, 53, 0.08); }
+.task-btn.easy { background: #e8f8ef; border-color: #caedd9; color: #286445; }
+.task-btn.medium { background: #fcf5d2; border-color: #efe5b3; color: #86681f; }
+.task-btn.hard { background: #fde8ea; border-color: #f2cbcf; color: #9b3f48; }
+.task-btn.running { background: #f6eec8 !important; border-color: #e8dca9 !important; color: #7d6320 !important; }
+#pause-btn { background: #f2f1f8; color: #4f5564; border-color: #e0dfee; }
+.status-msg { font-size: 12px; color: var(--muted); margin-left: auto; }
+.status-msg.error { color: var(--danger); }
+
+.tab-pane {
+  display: none;
+  overflow-y: auto;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+.tab-pane.active { display: block; }
+
+.sec {
+  font-size: 11px;
+  color: #8a90a1;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.sec .badge {
+  background: #f3c7cd;
+  color: #7f2f3b;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  margin-left: 8px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px,1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.m-card {
+  border-radius: 18px;
+  padding: 12px 14px;
+  border: 1px solid #ebeaf0;
+  box-shadow: 0 5px 18px rgba(68, 61, 90, 0.04);
+}
+.m-card:nth-child(1) { background: var(--lavender); }
+.m-card:nth-child(2) { background: var(--purple); }
+.m-card:nth-child(3) { background: #f6e8ec; }
+.m-card:nth-child(4) { background: var(--pale-yellow); }
+.m-card .lbl { font-size: 11px; color: #687083; }
+.m-card .val { font-size: 24px; font-weight: 600; margin-top: 2px; color: #2f3440; }
+
+.alerts-wrap { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.alert-card {
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid #eceaf2;
+  display: flex;
+  gap: 10px;
+  background: #fafafc;
+}
+.alert-card.urgent { background: #fff2f3; border-color: #f5d8dc; }
+.alert-card.warning { background: #fff8e8; border-color: #f2e1ba; }
+.alert-card.info { background: #f0f4ff; border-color: #dde5fb; }
+.alert-icon { width: 20px; height: 20px; display: grid; place-items: center; }
+.alert-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; color: #39404f; }
+.alert-body { font-size: 12px; color: #71798b; line-height: 1.45; }
+
+.kanban { display: grid; grid-template-columns: repeat(3, minmax(240px,1fr)); gap: 12px; }
+.kb-col {
+  border-radius: 18px;
+  border: 1px solid #ebeaf0;
+  background: #fcfcfd;
+  padding: 12px;
+  min-height: 300px;
+}
+.kb-col:nth-child(1) { background: var(--soft-gray); }
+.kb-col:nth-child(2) { background: #f3f0fd; }
+.kb-col:nth-child(3) { background: #fff9d9; }
+.kb-head {
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  color:#666f82;
+  font-size:12px;
+  margin-bottom:10px;
+}
+.kb-count {
+  background:#fff;
+  border:1px solid #e7e6ee;
+  border-radius:999px;
+  font-size:11px;
+  padding:2px 8px;
+}
+.kb-list { display:flex; flex-direction:column; gap:10px; }
+
+.intern-card {
+  border-radius: 18px;
+  border: 1px solid #eae8f0;
+  background: #fff;
+  padding: 12px;
+  box-shadow: 0 8px 18px rgba(58, 56, 76, 0.05);
+  transition: all 200ms ease-in-out;
+}
+.intern-card:hover { transform: translateY(-1px); box-shadow: 0 12px 22px rgba(55, 57, 72, 0.08); }
+.intern-card.complete { border-color: #d5ead9; }
+.intern-card.needs-attention { border-color: #eedfb6; }
+.i-head { display:flex; gap:10px; align-items:center; margin-bottom:8px; }
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+.av0{background:#efe8ff;color:#6753d4} .av1{background:#e6f9f1;color:#2e8e68}
+.av2{background:#ffeef4;color:#ba527d} .av3{background:#fff6de;color:#a1762d}
+.av4{background:#eaf1ff;color:#4f6fd4} .av5{background:#f0f3f5;color:#5f6776}
+.i-name { font-size: 14px; font-weight: 600; color: #333a49; }
+.i-flags { display:flex; flex-wrap:wrap; gap:4px; margin-top:2px; }
+.flag {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.flag-ok { background: #e6f5ec; color: #2f7f54; }
+.flag-warn { background: #fff4d9; color: #966e23; }
+.flag-info { background: #ecf1ff; color: #435db5; }
+.flag-danger { background: #fde8ec; color: #9f4250; }
+.flag-purple { background: #efe9ff; color: #624bc6; }
+.progress-wrap { margin: 8px 0; }
+.prog-labels { display:flex; justify-content:space-between; font-size:11px; color:#757d8f; margin-bottom:4px; }
+.prog-bar { height: 4px; border-radius: 999px; background: #ebe9f2; overflow: hidden; }
+.prog-fill { height:100%; background: linear-gradient(90deg, #8d80f0, #b8acf8); transition: width 200ms ease-in-out; }
+.checklist { display:grid; grid-template-columns: 1fr 1fr; gap:2px 8px; }
+.cl-item { font-size: 11px; color: #7e8595; display:flex; align-items:center; gap:5px; }
+.cl-dot { width: 6px; height: 6px; border-radius: 999px; background: #d3d5df; }
+.cl-item.done { color: #3f7f5c; }
+.cl-item.done .cl-dot { background: #72b08d; }
+
+.done-banner {
+  margin-top: 14px;
+  border-radius: 18px;
+  border: 1px solid #d8e9de;
+  background: #edf8f1;
+  padding: 16px;
+}
+.done-banner h2 { color: #3f7f5c; font-size: 18px; font-weight: 600; }
+.done-banner p { color: #6b7487; margin-top: 4px; font-size: 13px; }
+
+.feed-item {
+  border-bottom: 1px solid #efedf2;
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  padding: 10px 0;
+}
+.feed-dot { width: 8px; height: 8px; border-radius: 999px; margin-top: 5px; }
+.feed-text { flex: 1; font-size: 13px; color: #465061; line-height: 1.45; }
+.feed-step { font-size: 11px; color: #8a92a2; margin-top: 3px; }
+.feed-time { font-size: 11px; color: #9aa1b0; white-space: nowrap; }
+
+.comm-card {
+  border: 1px solid #ebeaf0;
+  background: #fafafd;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.comm-head { display:flex; align-items:center; gap:8px; padding: 10px 12px; cursor:pointer; }
+.comm-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display:grid;
+  place-items:center;
+  border:1px solid #e7e6ec;
+  background: #fff;
+}
+.comm-subject { font-size: 12px; font-weight: 600; color: #3d4555; }
+.comm-meta { font-size: 11px; color: #8a91a0; }
+.comm-body {
+  display: none;
+  border-top: 1px solid #ecebf1;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #6d7485;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+.comm-card.open .comm-body { display: block; }
+
+.log-box {
+  border-radius: 16px;
+  border: 1px solid #ecebf1;
+  background: #f8f8fb;
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+.log-line { line-height: 1.7; color: #6f7688; }
+.ll-reset { color: #5467c8; }
+.ll-step { color: #41795a; }
+.ll-end { color: #6c56b8; }
+.ll-err { color: #b14b57; }
+.ll-info { color: #8f96a6; }
+
+.empty { color: #9097a8; font-size: 12px; padding: 20px 0; text-align: center; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: #dfdde6; border-radius: 999px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="s-logo">A</div>
+    <div class="s-icon active">≡</div>
+    <div class="s-icon">◌</div>
+    <div class="s-icon">⌂</div>
+    <div class="s-icon">☆</div>
+    <div class="s-icon">⎙</div>
+    <div class="s-icon">⚙</div>
+  </aside>
+
+  <main class="workspace">
+    <div class="topbar">
+      <div class="brand"><span>Ara</span> AI • Daily Operation</div>
+      <div class="top-right">
+        <div class="pill">Step <b id="hdr-step">0</b></div>
+        <div class="pill">Score <b id="hdr-score">—</b></div>
+        <div class="pill" id="pill-diff"></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('pipeline')">Pipeline</div>
+      <div class="tab" onclick="switchTab('activity')">Activity</div>
+      <div class="tab" onclick="switchTab('comments')">Comments <span class="n" id="comms-badge"></span></div>
+      <div class="tab" onclick="switchTab('reports')">Reports</div>
+    </div>
+
+    <div class="controls">
+      <button class="task-btn easy" id="btn-easy" onclick="startTaskRun('easy')">Run easy</button>
+      <button class="task-btn medium" id="btn-medium" onclick="startTaskRun('medium')">Run medium</button>
+      <button class="task-btn hard" id="btn-hard" onclick="startTaskRun('hard')">Run hard</button>
+      <button id="pause-btn" onclick="togglePause()" disabled>Pause</button>
+      <span class="status-msg" id="status-msg"></span>
+    </div>
+
+    <section class="tab-pane active" id="pane-pipeline">
+      <div class="sec">Overview</div>
+      <div class="metrics">
+        <div class="m-card"><div class="lbl">Completed</div><div class="val" id="m-done">—</div></div>
+        <div class="m-card"><div class="lbl">In Progress</div><div class="val" id="m-prog">—</div></div>
+        <div class="m-card"><div class="lbl">Need Attention</div><div class="val" id="m-attn">—</div></div>
+        <div class="m-card"><div class="lbl">Score</div><div class="val" id="m-score">—</div></div>
+      </div>
+
+      <div id="alerts-section" style="display:none">
+        <div class="sec">Manager Attention Required <span class="badge" id="alerts-badge">0</span></div>
+        <div class="alerts-wrap" id="alerts-wrap"></div>
+      </div>
+
+      <div class="sec">Kanban Board</div>
+      <div class="kanban" id="kanban-board">
+        <div class="kb-col"><div class="kb-head">To do <span class="kb-count">0</span></div><div class="kb-list"><div class="empty">Run a task to start.</div></div></div>
+        <div class="kb-col"><div class="kb-head">In progress <span class="kb-count">0</span></div><div class="kb-list"><div class="empty">Run a task to start.</div></div></div>
+        <div class="kb-col"><div class="kb-head">Done <span class="kb-count">0</span></div><div class="kb-list"><div class="empty">Run a task to start.</div></div></div>
+      </div>
+
+      <div id="done-banner" class="done-banner" style="display:none">
+        <h2>Onboarding Complete</h2>
+        <p id="done-msg"></p>
+      </div>
+    </section>
+
+    <section class="tab-pane" id="pane-activity">
+      <div id="feed-container"><div class="empty">No activity yet.</div></div>
+    </section>
+
+    <section class="tab-pane" id="pane-comments">
+      <div id="comms-container"><div class="empty">No emails sent yet.</div></div>
+    </section>
+
+    <section class="tab-pane" id="pane-reports">
+      <div style="font-size:11px;color:#8d94a3;margin-bottom:8px;">Technical log in inference-style format</div>
+      <div class="log-box" id="tech-log">
+        <div class="log-line ll-info">// Waiting for episode to start...</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+const BASE = '';
+let agentRunning = false;
+let agentTimer = null;
+let episodeState = null;
+let episodeScore = 0;
+let episodeDiff  = '';
+let episodeTask  = '';
+let feedItems    = [];
+let commsCount   = 0;
+const STEP_DELAY_MS = 1700;
+let isPaused = false;
+
+// ─────────────────────────────────────────────
+// Human-readable labels
+// ─────────────────────────────────────────────
+const ACTION_LABELS = {
+  send_welcome_email:          'Sent welcome email',
+  share_docs:                  'Shared onboarding documents',
+  share_international_docs:    'Shared international & visa documents',
+  schedule_intro_meeting:      'Scheduled intro meeting',
+  create_account:              'Created corporate account',
+  grant_system_access:         'Granted system access',
+  request_alternative_access:  'Requested alternative system access',
+  send_followup_email:         'Sent follow-up reminder',
+  escalate_to_manager:         'Escalated to manager',
+};
+
+const CHECKLIST_LABELS = {
+  welcome_email_sent: 'Welcome email sent',
+  docs_shared:        'Documents shared',
+  intl_docs_shared:   'International docs shared',
+  intro_scheduled:    'Intro meeting scheduled',
+  account_created:    'Corporate account created',
+  access_granted:     'System access granted',
+  followup_sent:      'Follow-up sent',
+  escalated:          'Escalated to manager',
+};
+
+const STATUS_LABELS = {
+  complete:        [' Complete',          'flag-ok'],
+  escalated:       [' Escalated',         'flag-danger'],
+  'needs-attention':['(!)️ Needs attention',  'flag-warn'],
+  'in-progress':   [' In progress',        'flag-info'],
+  pending:         ['○ Pending',            'flag-warn'],
+};
+
+const DIFF_COLORS = { easy: '#22c55e', medium: '#f59e0b', hard: '#ef4444' };
+const DIFF_LABELS = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+
+// ─────────────────────────────────────────────
+// Tab switching
+// ─────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names = ['pipeline','activity','comments','reports'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-pane').forEach((p,i) => {
+    const names = ['pane-pipeline','pane-activity','pane-comments','pane-reports'];
+    p.classList.toggle('active', names[i] === ('pane-'+name));
+  });
+  if (name === 'comments') {
+    commsCount = 0;
+    const b = document.getElementById('comms-badge');
+    b.textContent = 0; b.classList.remove('show');
+  }
+}
+
+// ─────────────────────────────────────────────
+// Run one selected task (kanban mode)
+// ─────────────────────────────────────────────
+async function startTaskRun(task) {
+  if (agentRunning) return;
+  const ok = await doReset(task);
+  if (!ok) return;
+
+  agentRunning = true;
+  isPaused = false;
+  setTaskButtonsRunning(task, true);
+  updatePauseButton();
+  setStatus(`Running ${task} step-by-step...`);
+  scheduleNextStep();
+}
+
+function stopAgent() {
+  agentRunning = false;
+  isPaused = false;
+  clearTimeout(agentTimer);
+  setTaskButtonsRunning('', false);
+  updatePauseButton();
+  if (!episodeState?._done) setStatus('Agent paused.');
+}
+
+function togglePause() {
+  if (!agentRunning) return;
+  isPaused = !isPaused;
+  updatePauseButton();
+  if (isPaused) {
+    clearTimeout(agentTimer);
+    setStatus('Paused. Click Resume to continue.');
+    return;
+  }
+  setStatus(`Running ${episodeTask || 'task'} step-by-step...`);
+  scheduleNextStep();
+}
+
+function scheduleNextStep() {
+  if (!agentRunning || isPaused) return;
+  agentTimer = setTimeout(runOneStep, STEP_DELAY_MS);
+}
+
+async function runOneStep() {
+  if (!agentRunning || isPaused) return;
+
+  try {
+    // Ask greedy agent for next action
+    const nextRes = await fetch(BASE+'/agent/next', { method:'POST' });
+    const next = await nextRes.json();
+
+    if (!next.intern_id || !next.action) {
+      stopAgent();
+      setStatus('No more actions available.');
+      return;
+    }
+
+    // Execute the action
+    const stepRes = await fetch(BASE+'/step', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ intern_id: next.intern_id, action: next.action })
+    });
+    const data = await stepRes.json();
+    if (!stepRes.ok) { setStatus('Error: '+(data.detail||stepRes.statusText), true); stopAgent(); return; }
+
+    const obs    = data.observation;
+    const reward = data.reward;
+    const step   = obs.step_count;
+    const done   = data.done;
+    const err    = data.info?.error;
+
+    episodeState = obs;
+    episodeScore = reward.score;
+    episodeState._done = done;
+
+    // Technical log line
+    const actionJson = JSON.stringify({intern_id: next.intern_id, action: next.action});
+    techLog(
+      `[STEP] step=${step} action=${actionJson} reward=${reward.step_reward.toFixed(2)} done=${done} error=${err||'null'}`,
+      err ? 'll-err' : 'll-step'
+    );
+
+    // Human-readable feed
+    const label = ACTION_LABELS[next.action] || next.action;
+    const intern = obs.interns.find(i => i.id === next.intern_id);
+    if (err) {
+      addFeed(`Error — ${intern?.name || next.intern_id}: ${err}`, '#ef4444');
+    } else {
+      const rSign = reward.step_reward >= 0 ? '+' : '';
+      addFeed(`${intern?.name || next.intern_id} — ${label} (${rSign}${reward.step_reward.toFixed(2)})`,
+        reward.step_reward >= 0 ? '#4ade80' : '#ef4444', step);
+    }
+
+    renderAll();
+
+    if (done) {
+      techLog(`[END] success=true steps=${step} score=${reward.score.toFixed(3)} rewards=...`, 'll-end');
+      addFeed(`Onboarding complete! Final score: ${reward.score.toFixed(2)}`, '#22c55e');
+      document.getElementById('done-banner').style.display = 'block';
+      document.getElementById('done-msg').textContent = `All interns processed in ${step} steps. Score: ${reward.score.toFixed(2)}`;
+      stopAgent();
+      setStatus(`Done! Score: ${reward.score.toFixed(2)}`);
+      return;
+    }
+
+    scheduleNextStep();
+  } catch(e) {
+    setStatus('Runtime error: '+e.message, true);
+    stopAgent();
+  }
+}
+
+// ─────────────────────────────────────────────
+// Reset episode
+// ─────────────────────────────────────────────
+async function doReset(task) {
+  setStatus('Starting episode…');
+  feedItems  = [];
+  commsCount = 0;
+  document.getElementById('done-banner').style.display = 'none';
+  document.getElementById('tech-log').innerHTML = '<div class="log-line ll-info">// Episode started</div>';
+  document.getElementById('comms-container').innerHTML = '<div class="empty">No emails sent yet.</div>';
+  document.getElementById('feed-container').innerHTML  = '<div class="empty">No activity yet.</div>';
+  const b = document.getElementById('comms-badge'); b.textContent = 0; b.classList.remove('show');
+
+  try {
+    const res = await fetch(BASE+'/reset', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({task})
+    });
+    if (!res.ok) { const d=await res.json(); throw new Error(d.detail||res.statusText); }
+    const obs = await res.json();
+    episodeState = obs;
+    episodeScore = 0;
+    episodeDiff  = obs.difficulty;
+    episodeTask  = task;
+    techLog(`[START] task=${task} env=onboarding-env model=agent`, 'll-reset');
+    addFeed(`Episode started — task: ${task} · difficulty: ${capitalize(obs.difficulty)}`, '#60a5fa');
+    renderAll();
+    return true;
+  } catch(e) {
+    setStatus('Error: '+e.message, true);
+    return false;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Render
+// ─────────────────────────────────────────────
+function renderAll() {
+  if (!episodeState) return;
+  const interns = episodeState.interns || [];
+  const diff    = episodeState.difficulty || episodeDiff;
+  const step    = episodeState.step_count || 0;
+
+  // Header pills
+  document.getElementById('hdr-step').textContent  = step;
+  document.getElementById('hdr-score').textContent = episodeScore.toFixed(2);
+  const pdiff = document.getElementById('pill-diff');
+  if (diff) {
+    pdiff.textContent = (DIFF_LABELS[diff] || diff).toUpperCase();
+    pdiff.style.display = 'inline-flex';
+    pdiff.style.background = (DIFF_COLORS[diff]||'#888') + '22';
+    pdiff.style.color = DIFF_COLORS[diff] || '#888';
+    pdiff.style.border = '1px solid ' + (DIFF_COLORS[diff]||'#888') + '55';
+  }
+
+  // Metrics
+  let done=0, prog=0, attn=0;
+  interns.forEach(i => {
+    const s = internStatus(i);
+    if (s === 'complete' || s === 'escalated') done++;
+    else if (s === 'needs-attention') attn++;
+    else if (checklistPct(i) > 0) prog++;
+  });
+  document.getElementById('m-done').textContent  = done;
+  document.getElementById('m-prog').textContent  = prog;
+  document.getElementById('m-attn').textContent  = attn;
+  document.getElementById('m-score').textContent = episodeScore.toFixed(2);
+
+  // Manager alerts
+  renderAlerts(interns);
+
+  // Kanban cards
+  renderKanban(interns);
+
+  // Communications
+  renderComms(episodeState.communications_log || []);
+}
+
+function renderKanban(interns) {
+  const board = document.getElementById('kanban-board');
+  const todo = [];
+  const progress = [];
+  const done = [];
+
+  interns.forEach((intern, idx) => {
+    const status = internStatus(intern);
+    const card = buildInternCard(intern, idx);
+    if (status === 'pending') todo.push(card);
+    else if (status === 'complete' || status === 'escalated') done.push(card);
+    else progress.push(card);
+  });
+
+  board.innerHTML = '';
+  board.appendChild(buildKanbanColumn('To do', todo));
+  board.appendChild(buildKanbanColumn('In progress', progress));
+  board.appendChild(buildKanbanColumn('Done', done));
+}
+
+function buildKanbanColumn(title, cards) {
+  const col = document.createElement('div');
+  col.className = 'kb-col';
+  col.innerHTML = `
+    <div class="kb-head">${title}<span class="kb-count">${cards.length}</span></div>
+    <div class="kb-list"></div>
+  `;
+  const list = col.querySelector('.kb-list');
+  if (!cards.length) {
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'No cards';
+    list.appendChild(e);
+  } else {
+    cards.forEach(c => list.appendChild(c));
+  }
+  return col;
+}
+
+// ─────────────────────────────────────────────
+// Manager alerts — only shows what needs human action
+// ─────────────────────────────────────────────
+function renderAlerts(interns) {
+  const wrap = document.getElementById('alerts-wrap');
+  const section = document.getElementById('alerts-section');
+  const alerts = [];
+
+  interns.forEach(intern => {
+    if (intern.days_without_response >= 3 && !intern.intern_confirmed && !intern.checklist.escalated) {
+      alerts.push({
+        type: 'urgent',
+        icon: ALERT_ICONS.urgent_no_response,
+        title: `${intern.name} hasn't responded in ${intern.days_without_response} days`,
+        body: `They haven't confirmed their start date. The system will escalate this to management automatically. No action needed from you unless escalation fails.`,
+      });
+    } else if (intern.checklist.escalated) {
+      alerts.push({
+        type: 'urgent',
+        icon: ALERT_ICONS.urgent_escalated,
+        title: `${intern.name} has been escalated`,
+        body: `Management has been notified. Please contact ${intern.name} directly to resolve their onboarding status.`,
+      });
+    }
+
+    if (intern.access_delayed && !intern.checklist.access_granted) {
+      alerts.push({
+        type: 'warning',
+        icon: ALERT_ICONS.warning_access,
+        title: `${intern.name}'s system access is delayed`,
+        body: `The main provider has an issue. The agent is requesting alternative access. You may want to follow up with IT if this persists.`,
+      });
+    }
+
+    if (intern.is_international && !intern.checklist.intl_docs_shared) {
+      alerts.push({
+        type: 'info',
+        icon: ALERT_ICONS.info_international,
+        title: `${intern.name} needs international documentation`,
+        body: `They are an international hire. Visa and relocation documents need to be shared before system access can be granted.`,
+      });
+    }
+  });
+
+  document.getElementById('alerts-badge').textContent = alerts.length;
+  if (!alerts.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  const iconColors = { urgent:'#fca5a5', warning:'#fcd34d', info:'#7dd3fc' };
+  wrap.innerHTML = alerts.map(a => `
+    <div class="alert-card ${a.type}">
+      <div class="alert-icon" style="color:${iconColors[a.type]||'currentColor'}">${a.icon}</div>
+      <div>
+        <div class="alert-title">${a.title}</div>
+        <div class="alert-body">${a.body}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+// Intern card
+// ─────────────────────────────────────────────
+function buildInternCard(intern, idx) {
+  const status = internStatus(intern);
+  const pct    = checklistPct(intern);
+  const avClass = ['av0','av1','av2','av3','av4','av5'][idx % 6];
+  const [statusLabel, statusFlagCls] = STATUS_LABELS[status] || ['Unknown','flag-info'];
+
+  const flags = [`<span class="flag ${statusFlagCls}">${statusLabel}</span>`];
+  if (intern.is_international)      flags.push(`<span class="flag flag-purple"> International</span>`);
+  if (intern.access_delayed)        flags.push(`<span class="flag flag-warn"> Access delayed</span>`);
+  if (intern.days_without_response >= 1 && !intern.checklist.escalated)
+    flags.push(`<span class="flag flag-warn">${intern.days_without_response}d no reply</span>`);
+
+  const initials = intern.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+  const items = Object.entries(CHECKLIST_LABELS)
+    .filter(([k]) => intern.is_international || k !== 'intl_docs_shared')
+    .map(([k, label]) => {
+      const done = intern.checklist[k];
+      return `<div class="cl-item${done?' done':''}"><div class="cl-dot"></div>${label}</div>`;
+    }).join('');
+
+  const card = document.createElement('div');
+  const cardCls = status === 'complete' || status === 'escalated' ? 'complete'
+                : status === 'needs-attention' ? 'needs-attention' : '';
+  card.className = `intern-card ${cardCls}`;
+  card.innerHTML = `
+    <div class="i-head">
+      <div class="avatar ${avClass}">${initials}</div>
+      <div>
+        <div class="i-name">${intern.name}</div>
+        <div class="i-flags">${flags.join('')}</div>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="prog-labels"><span>Progress</span><span>${Math.round(pct*100)}%</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct*100}%"></div></div>
+    </div>
+    <div class="checklist">${items}</div>
+  `;
+  return card;
+}
+
+function internStatus(intern) {
+  if (intern.checklist.escalated) return 'escalated';
+  const required = ['welcome_email_sent','docs_shared','intro_scheduled','account_created','access_granted'];
+  if (intern.is_international) required.push('intl_docs_shared');
+  if (required.every(k => intern.checklist[k])) return 'complete';
+  if (intern.days_without_response >= 3 && !intern.intern_confirmed) return 'needs-attention';
+  if (intern.days_without_response >= 1) return 'needs-attention';
+  if (intern.access_delayed && !intern.checklist.access_granted) return 'needs-attention';
+  if (Object.values(intern.checklist).some(v=>v)) return 'in-progress';
+  return 'pending';
+}
+
+function checklistPct(intern) {
+  const required = ['welcome_email_sent','docs_shared','intro_scheduled','account_created','access_granted'];
+  if (intern.is_international) required.push('intl_docs_shared');
+  return required.filter(k => intern.checklist[k]).length / required.length;
+}
+
+// ─────────────────────────────────────────────
+// Communications
+// ─────────────────────────────────────────────
+const SVG_ICONS = {
+  // envelope
+  send_welcome_email: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>`,
+  // document with lines
+  share_docs: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>`,
+  // globe
+  share_international_docs: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+  // calendar
+  schedule_intro_meeting: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  // bell
+  send_followup_email: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+  // alert triangle
+  escalate_to_manager: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+};
+
+// Alert icons (larger, colored via CSS currentColor)
+const ALERT_ICONS = {
+  urgent_no_response: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  urgent_escalated:   `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.16 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.07 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 17z"/></svg>`,
+  warning_access:     `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+  info_international: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+};
+
+function renderComms(log) {
+  const container = document.getElementById('comms-container');
+  if (!log.length) { container.innerHTML = '<div class="empty">No emails sent yet.</div>'; return; }
+  container.innerHTML = [...log].reverse().map((c,i) => `
+    <div class="comm-card" id="cc${i}" onclick="toggleComm('cc${i}')">
+      <div class="comm-head">
+        <div class="comm-icon" style="color:var(--muted)">${SVG_ICONS[c.type]||SVG_ICONS.send_welcome_email}</div>
+        <div class="comm-info">
+          <div class="comm-subject">${c.subject}</div>
+          <div class="comm-meta">To: ${c.intern_name} · Tap to expand</div>
+        </div>
+      </div>
+      <div class="comm-body">${c.body}</div>
+    </div>
+  `).join('');
+
+  // Badge
+  if (log.length > commsCount) {
+    commsCount = log.length;
+    const b = document.getElementById('comms-badge');
+    b.textContent = commsCount;
+    b.classList.add('show');
+  }
+}
+
+function toggleComm(id) {
+  document.getElementById(id)?.classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────
+// Activity feed (human language)
+// ─────────────────────────────────────────────
+function addFeed(text, color, step) {
+  const time = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  feedItems.unshift({ text, color, time, step });
+  if (feedItems.length > 40) feedItems.pop();
+  renderFeed();
+}
+
+function renderFeed() {
+  const c = document.getElementById('feed-container');
+  if (!feedItems.length) { c.innerHTML = '<div class="empty">No activity yet.</div>'; return; }
+  c.innerHTML = feedItems.map(f => `
+    <div class="feed-item">
+      <div class="feed-dot" style="background:${f.color}"></div>
+      <div class="feed-text">${f.text}${f.step ? `<div class="feed-step">Step ${f.step}</div>` : ''}</div>
+      <div class="feed-time">${f.time}</div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+// Technical log
+// ─────────────────────────────────────────────
+function techLog(line, cls) {
+  const box = document.getElementById('tech-log');
+  const el  = document.createElement('div');
+  el.className = 'log-line ' + cls;
+  el.textContent = line;
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+function setStatus(msg, isError=false) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status-msg' + (isError ? ' error' : '');
+}
+
+function capitalize(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
+
+function setTaskButtonsRunning(task, running) {
+  const buttons = [
+    { id: 'btn-easy', task: 'easy' },
+    { id: 'btn-medium', task: 'medium' },
+    { id: 'btn-hard', task: 'hard' },
+  ];
+  buttons.forEach(({id, task: t}) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.disabled = running && t !== task;
+    btn.style.opacity = (running && t !== task) ? '.45' : '1';
+    btn.classList.toggle('running', running && t === task);
+  });
+}
+
+function updatePauseButton() {
+  const btn = document.getElementById('pause-btn');
+  if (!btn) return;
+  btn.disabled = !agentRunning;
+  btn.textContent = isPaused ? 'Resume' : 'Pause';
+}
+
+setStatus('Choose a task button: easy, medium, or hard.');
+updatePauseButton();
+</script>
+</body>
+</html>

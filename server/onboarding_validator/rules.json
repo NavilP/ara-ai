@@ -1,0 +1,102 @@
+{
+  "prohibited_verbs": [
+    "terminate",
+    "fire",
+    "cancel",
+    "delete",
+    "remove",
+    "reject",
+    "deny",
+    "blacklist",
+    "suspend",
+    "ban",
+    "dismiss"
+  ],
+  "allowed_prefixes": [
+    "send_",
+    "share_",
+    "schedule_",
+    "create_",
+    "grant_",
+    "request_",
+    "escalate_",
+    "comm_",
+    "doc_",
+    "access_",
+    "remind_",
+    "verify_",
+    "notify_",
+    "follow_"
+  ],
+  "known_actions": [
+    "send_welcome_email",
+    "share_docs",
+    "share_international_docs",
+    "schedule_intro_meeting",
+    "create_account",
+    "grant_system_access",
+    "request_alternative_access",
+    "send_followup_email",
+    "escalate_to_manager"
+  ],
+  "precondition_rules": {
+    "share_docs": {
+      "requires_intern": [
+        "intern_confirmed"
+      ],
+      "message": "Cannot share company documents without explicit intern confirmation. Send welcome email first and wait for confirmation."
+    },
+    "share_international_docs": {
+      "requires_intern": [
+        "intern_confirmed",
+        "is_international"
+      ],
+      "message": "International documents require both intern confirmation and international status on file."
+    },
+    "schedule_intro_meeting": {
+      "requires_intern": [
+        "intern_confirmed"
+      ],
+      "message": "Cannot schedule meetings before intern confirms their start date."
+    },
+    "create_account": {
+      "requires_intern": [
+        "intern_confirmed"
+      ],
+      "requires_checklist": [
+        "docs_shared"
+      ],
+      "message": "Account creation requires confirmation and shared documentation. Complete those steps first."
+    },
+    "grant_system_access": {
+      "requires_checklist": [
+        "account_created",
+        "docs_shared"
+      ],
+      "forbidden_intern": [
+        "access_delayed"
+      ],
+      "message": "Cannot grant system access when access is delayed. Use request_alternative_access instead."
+    },
+    "request_alternative_access": {
+      "requires_checklist": [
+        "account_created"
+      ],
+      "requires_intern": [
+        "access_delayed"
+      ],
+      "message": "Alternative access path only applies to interns with a confirmed access delay."
+    },
+    "send_followup_email": {
+      "requires_days_gte": 1,
+      "message": "Follow-up email requires at least 1 day without intern response. It is too early to send a follow-up."
+    },
+    "escalate_to_manager": {
+      "requires_days_gte": 3,
+      "forbidden_intern": [
+        "intern_confirmed"
+      ],
+      "message": "Escalation requires 3+ days without response and no confirmation yet. Try a follow-up email first if fewer than 3 days have passed."
+    }
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "easy": [
+    {
+      "_comment": "Clean happy path — Heuristic++ handles all 5 steps, no LLM needed",
+      "id": "intern_001",
+      "name": "Carlos Mendez",
+      "type": "intern",
+      "start_date": "2024-09-01",
+      "is_international": false,
+      "intern_confirmed": false,
+      "days_without_response": 0,
+      "access_delayed": false,
+      "checklist": {
+        "welcome_email_sent": false,
+        "docs_shared": false,
+        "intl_docs_shared": false,
+        "intro_scheduled": false,
+        "account_created": false,
+        "access_granted": false,
+        "followup_sent": false,
+        "escalated": false
+      },
+      "dependencies": {
+        "share_docs":                ["intern_confirmed"],
+        "share_international_docs":  ["intern_confirmed", "is_international"],
+        "schedule_intro_meeting":    ["intern_confirmed"],
+        "create_account":            ["intern_confirmed", "docs_shared"],
+        "grant_system_access":       ["account_created", "docs_shared"],
+        "request_alternative_access":["account_created", "docs_shared", "access_delayed"],
+        "send_followup_email":       ["welcome_email_sent", "days_without_response_gte_1"],
+        "escalate_to_manager":       ["welcome_email_sent", "days_without_response_gte_3", "not_intern_confirmed"]
+      }
+    }
+  ],
+  "medium": [
+    {
+      "_comment": "Already confirmed + partially done — Heuristic++ handles remaining steps",
+      "id": "intern_001",
+      "name": "Carlos Mendez",
+      "type": "intern",
+      "start_date": "2024-09-01",
+      "is_international": false,
+      "intern_confirmed": true,
+      "days_without_response": 0,
+      "access_delayed": false,
+      "checklist": {
+        "welcome_email_sent": true,
+        "docs_shared": true,
+        "intl_docs_shared": false,
+        "intro_scheduled": false,
+        "account_created": false,
+        "access_granted": false,
+        "followup_sent": false,
+        "escalated": false
+      },
+      "dependencies": {
+        "share_docs":                ["intern_confirmed"],
+        "share_international_docs":  ["intern_confirmed", "is_international"],
+        "schedule_intro_meeting":    ["intern_confirmed"],
+        "create_account":            ["intern_confirmed", "docs_shared"],
+        "grant_system_access":       ["account_created", "docs_shared"],
+        "request_alternative_access":["account_created", "docs_shared", "access_delayed"],
+        "send_followup_email":       ["welcome_email_sent", "days_without_response_gte_1"],
+        "escalate_to_manager":       ["welcome_email_sent", "days_without_response_gte_3", "not_intern_confirmed"]
+      }
+    },
+    {
+      "_comment": "days=2, confirmed — LLM must send followup before proceeding. Validator blocks share_docs on Ana if tried early.",
+      "id": "intern_002",
+      "name": "Priya Sharma",
+      "type": "intern",
+      "start_date": "2024-09-01",
+      "is_international": false,
+      "intern_confirmed": true,
+      "days_without_response": 2,
+      "access_delayed": false,
+      "checklist": {
+        "welcome_email_sent": true,
+        "docs_shared": false,
+        "intl_docs_shared": false,
+        "intro_scheduled": false,
+        "account_created": false,
+        "access_granted": false,
+        "followup_sent": false,
+        "escalated": false
+      },
+      "dependencies": {
+        "share_docs":                ["intern_confirmed"],
+        "share_international_docs":  ["intern_confirmed", "is_international"],
+        "schedule_intro_meeting":    ["intern_confirmed"],
+        "create_account":            ["intern_confirmed", "docs_shared"],
+        "grant_system_access":       ["account_created", "docs_shared"],
+        "request_alternative_access":["account_created", "docs_shared", "access_delayed"],
+        "send_followup_email":       ["welcome_email_sent", "days_without_response_gte_1"],
+        "escalate_to_manager":       ["welcome_email_sent", "days_without_response_gte_3", "not_intern_confirmed"]
+      }
+    },
+    {
+      "_comment": "Brand new intern — validator will block share_docs until welcome email confirms intern",
+      "id": "intern_003",
+      "name": "Ana Gonzalez",
+      "type": "intern",
+      "start_date": "2024-09-15",
+      "is_international": false,
+      "intern_confirmed": false,
+      "days_without_response": 0,
+      "access_delayed": false,
+      "checklist": {
+        "welcome_email_sent": false,
+        "docs_shared": false,
+        "intl_docs_shared": false,
+        "intro_scheduled": false,
+        "account_created": false,
+        "access_granted": false,
+        "followup_sent": false,
+        "escalated": false
+      },
+      "dependencies": {
+        "share_docs":                ["intern_confirmed"],
+        "share_international_docs":  ["intern_confirmed", "is_international"],
+        "schedule_intro_meeting":    ["intern_confirmed"],
+        "create_account":            ["intern_confirmed", "docs_shared"],
+        "grant_system_access":       ["account_created", "docs_shared"],
+        "request_alternative_access":["account_created", "docs_shared", "access_delayed"],
+        "send_followup_email":       ["welcome_email_sent", "days_without_response_gte_1"],
+        "escalate_to_manager":       ["welcome_email_sent", "days_without_response_gte_3", "not_intern_confirmed"]
+      }
+    }
+  ],
+  "hard": [
+    {
+      "_comment": "International hire — LLM must sequence: welcome → docs → intl_docs → meeting → account → access",
+      "id": "intern_001",
+      "name": "Ahmed Al-Rashid",
+      "type": "intern",
+      "start_date": "2024-10-01",
+      "is_international": true,
+      "intern_confirmed": false,
+      "days_without_response": 0,
+      "access_delayed": false,
+      "checklist": {
+        "welcome_email_sent": false,
+        "docs_shared": false,
+        "intl_docs_shared": false,
+        "intro_scheduled": false,
+        "account_created": false,
+        "access_granted": false,
+        "followup_sent": false,
+        "escalated": false
+      },
+      "dependencies": {
+        "share_docs":                ["intern_confirmed"],
+        "share_international_docs":  ["intern_confirmed", "is_international"],
+        "schedule_intro_meeting":    ["intern_confirmed"],
+        "create_account":            ["intern_confirmed", "docs_shared"],
+        "grant_system_access":       ["account_created", "docs_shared", "intl_docs_shared"],
+        "request_alternative_access":["account_created", "docs_shared", "access_delayed"],
+        "send_followup_email":       ["welcome_email_sent", "days_without_response_gte_1"],
+        "escalate_to_manager":       ["welcome_email_sent", "days_without_response_gte_3", "not_intern_confirmed"]
+      }
+    },
+    {
+      "_comment": "4 days no response — validator blocks early escalation (zone 3). LLM must escalate first, no normal flow possible.",
+      "id": "intern_002",
+      "name": "Rohan Iyer",
+      "type": "intern",
+      "start_date": "2024-10-01",
+      "is_international": false,
+      "intern_confirmed": false,
+      "days_without_response": 4,
+      "access_delayed": false,
+      "checklist": {
+        "welcome_email_sent": true,
+        "docs_shared": false,
+        "intl_docs_shared": false,
+        "intro_scheduled": false,
+        "account_created": false,
+        "access_granted": false,
+        "followup_sent": false,
+        "escalated": false
+      },
+      "dependencies": {
+        "share_docs":                ["intern_confirmed"],
+        "share_international_docs":  ["intern_confirmed", "is_international"],
+        "schedule_intro_meeting":    ["intern_confirmed"],
+        "create_account":            ["intern_confirmed", "docs_shared"],
+        "grant_system_access":       ["account_created", "docs_shared"],
+        "request_alternative_access":["account_created", "docs_shared", "access_delayed"],
+        "send_followup_email":       ["welcome_email_sent", "days_without_response_gte_1"],
+        "escalate_to_manager":       ["welcome_email_sent", "days_without_response_gte_3", "not_intern_confirmed"]
+      }
+    },
+    {
+      "_comment": "Access delayed — validator blocks grant_system_access (zone 3). LLM must use request_alternative_access.",
+      "id": "intern_003",
+      "name": "Sara Kim",
+      "type": "intern",
+      "start_date": "2024-10-01",
+      "is_international": false,
+      "intern_confirmed": false,
+      "days_without_response": 0,
+      "access_delayed": true,
+      "checklist": {
+        "welcome_email_sent": false,
+        "docs_shared": false,
+        "intl_docs_shared": false,
+        "intro_scheduled": false,
+        "account_created": false,
+        "access_granted": false,
+        "followup_sent": false,
+        "escalated": false
+      },
+      "dependencies": {
+        "share_docs":                ["intern_confirmed"],
+        "share_international_docs":  ["intern_confirmed", "is_international"],
+        "schedule_intro_meeting":    ["intern_confirmed"],
+        "create_account":            ["intern_confirmed", "docs_shared"],
+        "grant_system_access":       ["account_created", "docs_shared"],
+        "request_alternative_access":["account_created", "docs_shared", "access_delayed"],
+        "send_followup_email":       ["welcome_email_sent", "days_without_response_gte_1"],
+        "escalate_to_manager":       ["welcome_email_sent", "days_without_response_gte_3", "not_intern_confirmed"]
+      }
+    }
+  ]
+}
