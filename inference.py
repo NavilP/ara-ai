@@ -150,7 +150,11 @@ async def run_episode(
         _requests.post(f"{ONBOARDING_URL}/task/{task}", timeout=10)
     except Exception:
         pass
-    observation = await env.reset(task=task)
+    try:
+        observation = await env.reset(task=task)
+    except Exception as exc:
+        print(f"[DEBUG] env.reset failed for task '{task}': {exc}", flush=True)
+        return record
     step_hist: List[str] = []
     score = 0.0
 
@@ -167,7 +171,11 @@ async def run_episode(
         action_str = json.dumps(
             {"intern_id": intern_id, "action": action}, separators=(",", ":")
         )
-        result     = await env.step(intern_id=intern_id, action=action)
+        try:
+            result = await env.step(intern_id=intern_id, action=action)
+        except Exception as exc:
+            print(f"[DEBUG] env.step failed at step {step}: {exc}", flush=True)
+            break
         step_r, score, error, zone, is_dynamic = extract_reward(result)
         done       = env.is_done(result)
 
@@ -188,7 +196,11 @@ async def run_episode(
             f"reward={step_r:+.2f} zone={zone} "
             f"{'[dynamic]' if is_dynamic else '[standard]'} error={error or 'null'}"
         )
-        observation          = result["observation"]
+        try:
+            observation = result["observation"]
+        except (KeyError, TypeError) as exc:
+            print(f"[DEBUG] Bad result format at step {step}: {exc}", flush=True)
+            break
         observation["_done"] = done
         if done:
             break
