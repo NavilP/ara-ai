@@ -82,7 +82,7 @@ def grade(task: str, interns: list["PersonState"], step_count: int) -> float:
         step_count: total steps taken in this episode
 
     Returns:
-        float in [0.0, 1.0], rounded to 2 decimal places
+        float in [0.05, 0.95], rounded to 2 decimal places
     """
     if not interns:
         return 0.0
@@ -117,5 +117,6 @@ def grade(task: str, interns: list["PersonState"], step_count: int) -> float:
         score = core * 0.70 + exc_ratio * 0.20 + efficiency * 0.10
     else:
         score = core * 0.90 + efficiency * 0.10
-
-    return round(min(max(score, 0.0), 1.0), 2)
+        
+    score = 0.05 + score * 0.90
+    return round(min(max(score, 0.05), 0.95), 2)
