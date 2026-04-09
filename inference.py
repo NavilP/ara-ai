@@ -41,7 +41,7 @@ load_dotenv()
 # ---------------------------------------------------------------------------
 
 API_BASE_URL   = os.getenv("API_BASE_URL")
-MODEL_NAME     = os.getenv("MODEL_NAME")
+MODEL_NAME     = os.getenv("MODEL_NAME",   "Qwen/Qwen2.5-72B-Instruct")
 API_KEY        = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
 ONBOARDING_URL = os.getenv("ONBOARDING_URL", "http://localhost:7860").rstrip("/")
 BENCHMARK      = os.getenv("BENCHMARK", "onboarding-env")
@@ -52,10 +52,7 @@ MAX_STEPS   = 20
 SUCCESS_THR = 0.5
 
 _missing = [k for k, v in {
-    "API_BASE_URL": API_BASE_URL,
-    "MODEL_NAME":   MODEL_NAME,
-    "HF_TOKEN":     API_KEY,
-
+    "HF_TOKEN": API_KEY,
 }.items() if not v]
 if _missing:
     raise EnvironmentError(
